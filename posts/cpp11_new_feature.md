@@ -1,5 +1,7 @@
 # [语言核心](http://en.cppreference.com/w/cpp/language)
 
+---
+
 ## [lambda表达式](http://en.cppreference.com/w/cpp/language/lambda)
 
 > **[capture] (parameters) mutable -> return-type { function body }**
@@ -80,9 +82,9 @@ lambda作为一种匿名函数对象，可以存放在容器，可以在模块�
 - 高阶函数:参数或者返回值是函数的函数
 
 ```cpp
-	//std::function<bool( const std::string& )> func = std::bind( &std::string::empty, _1 );
-	auto strEmpty = []( const std::string& p ) { return p.empty(); }; // 更直观和灵活
-````
+	// std::bind参数是函数对象，返回值也是函数对象
+	std::function<int(int)> unaryFunc = std::bind( []( int a, int b ) { return a + b; }, _1, 3 );
+```
 
 - 其他特性，如延迟计算
 
