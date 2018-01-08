@@ -1,8 +1,4 @@
-# [语言核心](http://en.cppreference.com/w/cpp/language)
-
----
-
-## [lambda表达式](http://en.cppreference.com/w/cpp/language/lambda)
+## lambda表达式
 
 > **[capture] (parameters) mutable -> return-type { function body }**
 

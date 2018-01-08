@@ -1,6 +1,6 @@
 # 类型推断
 
-**我能想到的类型推断的3个地方：auto、decltype和模板类型参数**
+**除了模板类型参数推断外，c++11新增了两个用于编译器类型推断的关键字：auto和decltype**
 
 ## auto
 
@@ -100,6 +100,44 @@ decltype的一些应用：
 	} anon_struct;
 	decltype(anon_struct) a;
 	a.m_n = 3;
+	auto f1 = [a] {};
+	decltype(f1) f2 = f1;
 ```
 
 decltype推断传给它的表达式（并不计算表达式）的类型，推断规则与auto不同：
+
+```cpp
+	int i = 0;
+	const int arr[5] = {};
+	const int *ptr = arr;
+	struct S { double d; } s;
+	int Overload( int );
+	int Overload( char ); // 重载的函数
+	int&& RvalRef();
+	const bool Func( int );
+
+	// 规则一：推导为其本身的类型
+	decltype(arr) var1 = {}; // const int[5] 标识符表达式
+	decltype(ptr) var2; // const int* 标识符表达式
+	decltype(s.d) var3; // double 成员访问表达式
+	// decltype(Overload) var4; // 重载函数，编译错误
+	decltype(Func) var5; // 非重载函数，推断为const bool(int)类型
+
+	// 规则二：xvalue（将亡值）推导为类型的右值引用
+	decltype(RvalRef()) var6 = 3; // int&&
+
+	// 规则三：左值，推导为类型的引用
+	decltype((i)) var7 = i;     // int& 左值表达式
+	decltype(true ? i : i) var8 = i; // int&  条件表达式返回左值
+	decltype(++i) var9 = i; // int&  ++i返回i的左值
+	decltype(arr[5]) var10 = i; // const int& 下标操作返回左值
+	decltype(*ptr) var11 = i; // const int& 解引用操作返回左值
+	decltype("hello") var12 = "hello"; //const char(&)[9] 字符串字面常量为左值，且为const左值
+
+	// 规则四：以上都不是，则推导为本类型
+	decltype(1) var13; // int
+	decltype(Func( 1 )) var14 = true; // const bool
+	decltype(i++) var15 = i; // int i++返回右值
+```
+
+**decltype类型推断非常灵活，比auto更加精确，不会丢掉cv特性，也不会将函数或者数组退化为指针**
