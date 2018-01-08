@@ -1,6 +1,64 @@
-# 右值引用
+# 类型推断
 
-> **c++11引入rvalue reference语法，主要解决两个问题：资源移动（move semantics）和参数转发（perfect forward）**
+**我能想到的类型推断的3个地方：auto、decltype和模板类型参数**
+
+## auto
+
+看一段python的代码：
+
+```python
+	var = 'hello'
+	print( var )
+	var = 2333
+	print( var )
+```
+
+python、javascript之类的所谓动态类型语言，变量在使用前并没有声明，而是直接拿来使用，像c++等静态类型语言，使用变量时，需要提前声明和定义
+
+实际上，从技术角度来看，静态类型和动态类型的区别无非是类型检查的时间点不一样，前者是在编译阶段，后者是运行时期，但是这些都需要编译器或者解释器进行类型推断
+
+编译代码时，c++的编译器掌握着所有的类型信息，所以其实我们可以让编译器帮我们推断类型，使用c++11编写上述代码：
+
+```cpp
+	auto var1 = "hello"; // 自动推断var1类型是const char*
+	std::cout << var1 << std::endl;
+	auto var2 = 2333; // 自动推断var2类型是int
+	std::cout << var2 << std::endl;
+```
+
+在c++11中，auto原来的表示自动声明周期的语义废弃了，而被赋予了新的语义：根据初始化表达式推断变量类型，需要指出的是，auto本质上是一个占位符，它不是类型，`sizeof( auto )`是非法的
+
+auto用作自动类型推断，最大的优点是简化代码，尤其是模板类型，如`auto iter = myMap.begin()`
+
+此外，auto还用于**返回值后置**的函数中：
+```cpp
+	auto GetX() -> X; // X是类型
+	template<typename T1, typename T2>
+	auto Sum( const T1& a, const T2& b ) -> decltype(a + b); // 前置返回值编译不通过
+```
+
+auto用于类型推断，缺点也很明显，除了阅读源码的时候要费心变量类型，有时候推断结果可能并不如你所想：
+
+- 可以使用const、volatile、*、&和&&来修饰auto
+
+```cpp
+	auto n = 3;
+	const auto cn = 3;
+	auto p1 = new auto(n); // int*
+	const auto p2 = new auto(n); //
+	const auto* p3 = new auto(n);
+	auto* p4 = new auto(n);
+	auto p5 = new auto(&n);
+	auto* p6 = new auto(&n);
+	auto** p7 = new auto(&n);
+	auto p8 = new auto(&cn);
+	auto n1 = cn;
+	const auto n2 = cn;
+	auto& n3 = cn;
+	const auto& n4 = n;
+	auto&& n5 = cn;
+	auto&& n6 = GetInt();
+```
 
 ## 基本概念：左值、右值和右值引用
 
