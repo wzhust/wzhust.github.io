@@ -29,6 +29,18 @@
 	}
 ```
 
+- 无法移动捕获
+
+c++11的lambda做不到移动捕获，c++14改进了这一点，所谓移动捕获就是捕获不可拷贝的对象
+
+尽管不能直接移动捕获，但是可以迂回地实现：
+
+```cpp
+	std::thread thread( [] { /* do something */ } ); // 不可拷贝但是可以移动的对象
+	auto f = std::bind( []( std::thread& p_thread ) { /* do something with p_thread */ }, std::move( thread ) ); // c++11的实现
+	//auto f = [thr = std::move( thread )]{ /* do something with thr */ }; // c++14的实现
+```
+
 ### lambda与函数对象
 
 > c++0x利用函数对象（重载函数调用操作符的类）也能实现lambda的同等功效，但是c++11的lambda表达式更加直观和方便，其匿名特性也避免了对命名空间的污染
@@ -106,8 +118,6 @@ lambda作为一种匿名函数对象，可以存放在容器，可以在模块�
 
 ### lambda总结
 
-1. 匿名对象，务须费心为类型取名，也避免污染命名空间
+1. 匿名对象，不用费心为类型取名，也避免污染命名空间
 2. 用于局部作用域代码逻辑的复用，简明直观
 3. 方便地在不同模块间传递一些代码逻辑和上下文环境变量
-
-## [右值引用](http://en.cppreference.com/w/cpp/language/reference)
